@@ -740,7 +740,6 @@ class MessageHandler:
                     if (
                         type_of_id == "garage_door_horizontal"
                         or type_of_id == "garage_door"
-                        or type_of_id == "gate"
                     ):
                         if (
                             element_name in deviceGaragelKeywords
@@ -757,6 +756,30 @@ class MessageHandler:
                             else:
                                 attr_garage["cover_class"] = "gate"
                             attr_garage[element_name] = element_value
+
+                    if type_of_id == "gate":
+                        # Expose gate devices as a switch (contact dry / pulse), not a cover
+                        if element_validity == "upToDate":
+                            attr_gate["device_id"] = device_id
+                            attr_gate["endpoint_id"] = endpoint_id
+                            attr_gate["id"] = str(device_id) + "_" + str(endpoint_id)
+                            attr_gate["switch_name"] = print_id
+                            attr_gate["name"] = print_id
+                            attr_gate["device_type"] = "switch"
+                            logger.info(
+                                "GATE mapped as SWITCH (id=%s, endpoint=%s, name=%s, elem=%s=%s)",
+                                device_id,
+                                endpoint_id,
+                                print_id,
+                                element_name,
+                                element_value,
+                            )
+                            # store whatever we receive as attributes for debug/visibility
+                            attr_gate[element_name] = element_value
+
+                            # Try to provide a "level" state if possible (Switch.py reads "level")
+                            if element_name in ["openState", "state", "level"]:
+                                attr_gate["level"] = element_value
 
                     if type_of_id == "conso":
                         if (
