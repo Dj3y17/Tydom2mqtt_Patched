@@ -768,7 +768,11 @@ class MessageHandler:
                             attr_gate["device_type"] = "switch"
                             logger.info(
                                 "GATE mapped as SWITCH (id=%s, endpoint=%s, name=%s, elem=%s=%s)",
-                                        device_id, endpoint_id, print_id, element_name, element_value
+                                device_id,
+                                endpoint_id,
+                                print_id,
+                                element_name,
+                                element_value,
                             )
                             # store whatever we receive as attributes for debug/visibility
                             attr_gate[element_name] = element_value
