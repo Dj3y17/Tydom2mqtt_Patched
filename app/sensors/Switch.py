@@ -23,11 +23,7 @@ class Switch:
         self.id = self.attributes["id"]
         self.name = self.attributes["switch_name"]
 
-        try:
-            self.current_level = self.attributes["level"]
-        except Exception as e:
-            logger.error(e)
-            self.current_level = None
+        self.current_level = self.attributes.get("level", 0)
         self.set_level = set_level
         self.mqtt = mqtt
 
@@ -65,20 +61,18 @@ class Switch:
             logger.error("Switch sensors Error :")
             logger.error(e)
 
-        self.level_topic = switch_state_topic.format(
-            id=self.id, current_level=self.current_level
-        )
+        state_topic = switch_state_topic.format(id=self.id)
+        payload = "ON" if int(self.current_level or 0) > 0 else "OFF"
 
         if self.mqtt is not None:
-            self.mqtt.mqtt_client.publish(
-                self.level_topic, self.current_level, qos=0, retain=True
-            )
+            self.mqtt.mqtt_client.publish(state_topic, payload, qos=0, retain=True)
             self.mqtt.mqtt_client.publish(
                 self.config["json_attributes_topic"],
-                self.attributes,
+                json.dumps(self.attributes),
                 qos=0,
                 retain=True,
             )
+
         logger.info(
             "Switch created / updated : %s %s %s",
             self.name,
